@@ -1,0 +1,9 @@
+ParenMW:
+  inner:
+    ArrayCache:
+      limit: 100
+      inner:
+       ArrayStore:
+          limit: 10
+          inner:
+            HashStore: {}
