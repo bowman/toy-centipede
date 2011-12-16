@@ -2,7 +2,7 @@ package ArrayStore;
 
 use namespace::autoclean;
 use Moose;
-use mro 'c3'; # dfs might actually be better
+use NEXT;
 
 with 'Protocol';
 
@@ -30,7 +30,7 @@ sub get {
     if ( $var =~ /^\d+$/ && $var <= $self->as_limit ) {
         return $self->_as_get($var);
     } else {
-        return $self->next::method($var);
+        return $self->NEXT::get($var);
     }
 }
 
@@ -40,7 +40,7 @@ sub set {
     if ( $var =~ /^\d+$/ && $var <= $self->as_limit ) {
         $self->_as_set($var, $val);
     } else {
-        $self->next::method($var, $val);
+        $self->NEXT::set($var, $val);
     }
 }
 

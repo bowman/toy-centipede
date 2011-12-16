@@ -2,7 +2,7 @@ package ArrayCache;
 
 use namespace::autoclean;
 use Moose;
-use mro 'c3';
+use NEXT;
 
 with 'Protocol';
 
@@ -28,9 +28,9 @@ sub get {
     my ($self, $var) = @_;
     # store small int keys in array, fallback to inner
     if ( $var =~ /^\d+$/ && $var <= $self->ac_limit ) {
-        return $self->_ac_get($var) // $self->next::method($var);
+        return $self->_ac_get($var) // $self->NEXT::get($var);
     } else {
-        return $self->next::method($var);
+        return $self->NEXT::get($var);
     }
 }
 
@@ -39,9 +39,9 @@ sub set {
     # store small int keys in array, fallback to inner
     if ( $var =~ /^\d+$/ && $var <= $self->ac_limit ) {
         $self->_ac_set($var, $val);
-        $self->next::method($var, $val);
+        $self->NEXT::set($var, $val);
     } else {
-        $self->next::method($var, $val);
+        $self->NEXT::set($var, $val);
     }
 }
 

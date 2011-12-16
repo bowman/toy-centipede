@@ -8,7 +8,7 @@ use mro 'c3';
 
 sub get {
     my ($self, $var) = @_;
-    return "(" . ($self->next::method($var) // 'UNDEF') . ")";
+    return "(" . ($self->NEXT::get($var) // 'UNDEF') . ")";
 }
 
 =for delegate reference
