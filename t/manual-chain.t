@@ -30,12 +30,17 @@ my $pa_class = Class::MOP::Class->create_anon_class(
     superclasses => [ 'ParenMW', ref($ac_class) ],
 )->new_object();
 
+my $pa_class2 = Class::MOP::Class->create_anon_class(
+    superclasses => [ 'ParenMW', ref($pa_class) ],
+)->new_object();
+
 # new instance of the anonymous subclass of HashStore
 # (don't provide 'inner' as that is now handled by anon class inheriting)
 my $hs = $hs_class->new();
 my $as = $as_class->new(as_limit => 10);
-my $ac = $ac_class->new(ac_limit => 100);
-my $s  = $pa_class->new();
+my $ac = $ac_class->new(ac_limit => 20);
+my $pa = $pa_class->new();
+my $s  = $pa_class2->new();
 
 my $hs_pkg = ref $hs;
 my $as_pkg = ref $as;
@@ -48,13 +53,14 @@ $s->set(30=>"thirty");
 $s->set(x=>"ex");
 #warn join ",\n ", @{ mro::get_linear_isa( $s_pkg ) };
 
-is( $s->get(1),     '(one)',    '$s->get(1)' );
-is( $s->get(20),    '(twenty)', '$s->get(20)' );
-is( $s->get("x"),   '(ex)',     '$s->get("x")' );
+is( $s->get(1),     '((one))',    '$s->get(1)' );
+is( $s->get(20),    '((twenty))', '$s->get(20)' );
+is( $s->get(30),    '((thirty))', '$s->get(30)' );
+is( $s->get("x"),   '((ex))',     '$s->get("x")' );
 
-is( $s->get(2),     '(UNDEF)',   '$s->get(1)' );
-is( $s->get(21),    '(UNDEF)',   '$s->get(20)' );
-is( $s->get("y"),   '(UNDEF)',   '$s->get("x")' );
+is( $s->get(2),     '((UNDEF))',   '$s->get(2)' );
+is( $s->get(21),    '((UNDEF))',   '$s->get(21)' );
+is( $s->get("y"),   '((UNDEF))',   '$s->get("y")' );
 
 # can't look at chain tails because all state is in $s's attributes
 my $ac_get = "$ac_pkg\::get";
