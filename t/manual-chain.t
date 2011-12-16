@@ -44,9 +44,9 @@ my $s_pkg  = ref $s;
 
 $s->set(1=>"one");
 $s->set(20=>"twenty");
-warn join ",\n ", @{ mro::get_linear_isa( $s_pkg ) };
-warn $s->can('set');
+$s->set(30=>"thirty");
 $s->set(x=>"ex");
+#warn join ",\n ", @{ mro::get_linear_isa( $s_pkg ) };
 
 is( $s->get(1),     '(one)',    '$s->get(1)' );
 is( $s->get(20),    '(twenty)', '$s->get(20)' );
@@ -65,7 +65,10 @@ is( $s->$as_get(1),    'one',       '$as->get(1)' );
 is( $s->$hs_get(1),    undef,       '$hs->get(1)' );
 is( $s->$ac_get(20),   'twenty',    '$ac->get(20)' );
 is( $s->$as_get(20),   'twenty',    '$as->get(20)' );
-is( $s->$hs_get(20),   undef,       '$hs->get(20)' );
+is( $s->$hs_get(20),   'twenty',    '$hs->get(20)' );
+is( $s->$ac_get(30),   'thirty',    '$ac->get(30)' );
+is( $s->$as_get(30),   'thirty',    '$as->get(30)' );
+is( $s->$hs_get(30),   'thirty',    '$hs->get(30)' );
 is( $s->$ac_get("x"),  'ex',        '$ac->get("x")' );
 is( $s->$as_get("x"),  'ex',        '$as->get("x")' );
 is( $s->$hs_get("x"),  'ex',        '$hs->get("x")' );
