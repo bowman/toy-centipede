@@ -4,12 +4,6 @@ use namespace::autoclean;
 use Moose;
 
 
-has inner => (
-    is      => 'ro',
-    does => 'Protocol',
-#    required => 1,
-);
-
 has hs_store => (
     traits  => ['Hash'],
     is      => 'ro',

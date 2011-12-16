@@ -4,16 +4,6 @@ use namespace::autoclean;
 use Moose;
 use mro 'c3';
 
-has inner => (
-    is      => 'ro',
-    does => 'Protocol',
-    #required => 1,
-    # Protocol requires met by delegation (with later)
-    #handles => [qw(
-    #    set
-    #)],
-);
-
 # XXX set missing because it's passed through: with 'Protocol';
 
 sub get {
