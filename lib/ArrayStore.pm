@@ -2,27 +2,28 @@ package ArrayStore;
 
 use namespace::autoclean;
 use Moose;
+use mro 'c3'; # dfs might actually be better
 
 with 'Protocol';
 
 has inner => (
     is      => 'ro',
     does => 'Protocol',
-    required => 1,
+#    required => 1,
 );
 
-has store => (
+has as_store => (
     traits  => ['Array'],
     is      => 'ro',
     isa     => 'ArrayRef[Any]',
     default => sub { [] },
     handles => {
-        _get     => 'get',
-        _set     => 'set',
+        _as_get     => 'get',
+        _as_set     => 'set',
     },
 );
 
-has limit => (
+has as_limit => (
     is      => 'ro',
     isa     => 'Int',
     default => 100,
@@ -31,20 +32,20 @@ has limit => (
 sub get {
     my ($self, $var) = @_;
     # store small int keys in array, fallback to inner
-    if ( $var =~ /^\d+$/ && $var <= $self->limit ) {
-        return $self->_get($var);
+    if ( $var =~ /^\d+$/ && $var <= $self->as_limit ) {
+        return $self->_as_get($var);
     } else {
-        return $self->inner->get($var);
+        return $self->next::method($var);
     }
 }
 
 sub set {
     my ($self, $var, $val) = @_;
     # store small int keys in array, fallback to inner
-    if ( $var =~ /^\d+$/ && $var <= $self->limit ) {
-        $self->_set($var, $val);
+    if ( $var =~ /^\d+$/ && $var <= $self->as_limit ) {
+        $self->_as_set($var, $val);
     } else {
-        $self->inner->set($var, $val);
+        $self->next::method($var, $val);
     }
 }
 

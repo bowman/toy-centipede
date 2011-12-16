@@ -3,31 +3,36 @@ package HashStore;
 use namespace::autoclean;
 use Moose;
 
-has store => (
+
+has inner => (
+    is      => 'ro',
+    does => 'Protocol',
+#    required => 1,
+);
+
+has hs_store => (
     traits  => ['Hash'],
     is      => 'ro',
     # isa      => 'HashRef[Any]',
     default => sub { {} },
     handles => {
         # get/set meet 'Protocol' requires (delay with)
-        get     => 'get',
-        set     => 'set',
+        _hs_get     => 'get',
+        _hs_set     => 'set',
     },
 );
 
 with 'Protocol';
 
-=for Protocol
 sub get {
     my ($self, $var) = @_;
-    return $self->_get($var);
+    return $self->_hs_get($var);
 }
 
 sub set {
     my ($self, $var, $val) = @_;
-    $self->_set($var, $val);
+    $self->_hs_set($var, $val);
 }
-=cut
 
 1;
 

@@ -2,22 +2,23 @@ package ParenMW;
 
 use namespace::autoclean;
 use Moose;
+use mro 'c3';
 
 has inner => (
     is      => 'ro',
     does => 'Protocol',
-    required => 1,
+    #required => 1,
     # Protocol requires met by delegation (with later)
-    handles => [qw(
-        set
-    )],
+    #handles => [qw(
+    #    set
+    #)],
 );
 
-with 'Protocol';
+# XXX set missing because it's passed through: with 'Protocol';
 
 sub get {
     my ($self, $var) = @_;
-    return "(" . ($self->inner->get($var) // 'UNDEF') . ")";
+    return "(" . ($self->next::method($var) // 'UNDEF') . ")";
 }
 
 =for delegate reference
