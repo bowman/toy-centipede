@@ -22,6 +22,7 @@ has as_limit => (
     isa     => 'Int',
     default => 100,
 );
+# my $limit = __PACKAGE__ . "::limit";
 
 sub get {
     my ($self, $var) = @_;
