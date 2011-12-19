@@ -3,6 +3,8 @@
 use Test::More;
 use strict;
 use warnings;
+use Devel::PartialDump qw(show);
+
 BEGIN {
     use_ok('HashStore');
     use_ok('ArrayStore');
