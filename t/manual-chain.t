@@ -33,9 +33,9 @@ my $pa_class = Class::MOP::Class->create_anon_class(
 # new instance of the anonymous subclass of HashStore
 # (don't provide 'inner' as that is now handled by anon class inheriting)
 my $hs = $hs_class->new();
-my $as = $as_class->new(as_limit => 10);
-my $ac = $ac_class->new(ac_limit => 100);
-my $s  = $pa_class->new();
+my $as = $as_class->new(as_limit => 10); # param no use
+my $ac = $ac_class->new(ac_limit => 20); # param no use
+my $s  = $pa_class->new(as_limit => 10, ac_limit => 20);
 
 my $hs_pkg = ref $hs;
 my $as_pkg = ref $as;
