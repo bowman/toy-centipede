@@ -7,7 +7,7 @@ use mro 'c3';
 # XXX set missing because it's passed through: with 'Protocol';
 
 sub get {
-    my ($self, $var) = @_;
+    my ($layer_pkg, $self, $var) = @_;
     return "(" . ($self->next::method($var) // 'UNDEF') . ")";
 }
 

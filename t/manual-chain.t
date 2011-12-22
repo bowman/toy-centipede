@@ -4,7 +4,6 @@ use Test::More;
 use strict;
 use warnings;
 use Devel::PartialDump qw(show);
-use Sub::Clone;
 use Sub::Name;
 
 BEGIN {
@@ -26,38 +25,45 @@ my @protocol_methods = map { $_->name }
 
 my $prev;
 my (%layer_meta, %layer_pkg);
-for my $layer_pkg (qw( HashStore ArrayStore ArrayCache ParenMW )) {
-    my $prelayer_meta = Class::MOP::Class->initialize($layer_pkg);
+for my $prelayer_pkg (qw( HashStore ArrayStore ArrayCache ParenMW )) {
+    my $prelayer_meta = Class::MOP::Class->initialize($prelayer_pkg);
     my $layer_class = Class::MOP::Class->create_anon_class(
-        #superclasses => [ $prelayer_meta->superclasses, ($prev // ()) ],
         superclasses => [ ($prev // ()), $prelayer_meta->superclasses ],
         attributes => [ map { $prelayer_meta->get_attribute($_) }
-                            $prelayer_meta->get_attribute_list ],
-        # package not needed
+                              $prelayer_meta->get_attribute_list ],
     )->new_object();
 
     my $layer_meta = $layer_class->meta;
+    my $layer_pkg = $layer_meta->name;
 
     for my $protocol_method (@protocol_methods) {
         next unless $prelayer_meta->has_method($protocol_method);
 
-        # $orig_meth->clone-ing the method isn't enough,
-        # mro needs the right subname on the CODE
-        # see mro/Calling "next::method" from methods defined outside the class
-        # error: No next::method 'set' found for Class::MOP::Class::__ANON__..
-
         my $orig_meth = $prelayer_meta->get_method($protocol_method);
+        my $orig_body = $orig_meth->body;
         my $new_fq_name = $layer_meta->name . "::" . $orig_meth->name;
-        my $new_body = subname $new_fq_name, clone_sub($orig_meth->body);
-        $layer_meta->add_method( $orig_meth->name, $new_body );
+        #my $new_body = subname $new_fq_name;
+
+warn "Adding $protocol_method to $new_fq_name ($orig_body)";
+
+# DEAD-END:
+# the goto &$orig_body wrapper trick doesn't fool mro, it's not using caller
+# need subname and therefore clone_sub
+subname($new_fq_name, $orig_body);
+
+        $layer_meta->add_method(
+            $orig_meth->name => subname($new_fq_name,
+                    sub {
+warn "$prelayer_pkg IN $new_fq_name, with (@_)";
+                        unshift @_, $layer_pkg; goto &$orig_body }) );
     }
 
-    $layer_meta{$layer_pkg} = $layer_meta;
-    $layer_pkg{$layer_pkg} = $layer_meta->name;
-    $prev = $layer_meta->name;
+    $layer_meta{$prelayer_pkg} = $layer_meta;
+    $layer_pkg{$prelayer_pkg} = $layer_pkg;
+    $prev = $layer_pkg;
 }
 
-# warn @{ mro::get_linear_isa($layer_pkg{ParenMW}) };
+warn join("\n  ",@{ mro::get_linear_isa($layer_pkg{ParenMW}) });
 
 # new instance of the anonymous subclass of HashStore
 # (don't provide 'inner' as that is now handled by anon class inheriting)

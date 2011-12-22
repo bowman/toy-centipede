@@ -25,7 +25,7 @@ has ac_limit => (
 #my $limit = __PACKAGE__ . "::limit";
 
 sub get {
-    my ($self, $var) = @_;
+    my ($layer_pkg, $self, $var) = @_;
     # store small int keys in array, fallback to inner
     if ( $var =~ /^\d+$/ && $var <= $self->ac_limit ) {
         return $self->_ac_get($var) // $self->next::method($var);
@@ -35,10 +35,13 @@ sub get {
 }
 
 sub set {
-    my ($self, $var, $val) = @_;
+    my ($layer_pkg, $self, $var, $val) = @_;
     # store small int keys in array, fallback to inner
     if ( $var =~ /^\d+$/ && $var <= $self->ac_limit ) {
         $self->_ac_set($var, $val);
+warn "@_";
+        warn $layer_pkg->next::can;
+        warn $self->next::can;
         $self->next::method($var, $val);
     } else {
         $self->next::method($var, $val);

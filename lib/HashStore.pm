@@ -19,12 +19,12 @@ has hs_store => (
 with 'Protocol';
 
 sub get {
-    my ($self, $var) = @_;
+    my ($layer_pkg, $self, $var) = @_;
     return $self->_hs_get($var);
 }
 
 sub set {
-    my ($self, $var, $val) = @_;
+    my ($layer_pkg, $self, $var, $val) = @_;
     $self->_hs_set($var, $val);
 }
 
