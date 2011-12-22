@@ -6,6 +6,7 @@ use warnings;
 use Devel::PartialDump qw(show);
 
 BEGIN {
+    use_ok('Protocol');
     use_ok('HashStore');
     use_ok('ArrayStore');
     use_ok('ArrayCache');
@@ -15,29 +16,44 @@ BEGIN {
 # create a metaclass instance of an anon_class (Moose::Meta::Class=HASH..)
 # then use new_object to create the anon class object
 # (Class::MOP::Class::__ANON__::SERIAL::4=HASH)
-my $hs_class = Class::MOP::Class->create_anon_class(
-    superclasses => [ 'HashStore' ],
-)->new_object();
+# definition_context for attributes { line => , file||description => }
+# attribute in layer vs self
+my $protocol_meta = Class::MOP::Class->initialize('Protocol');
+my @protocol_methods = map { $_->name }
+                        $protocol_meta->get_required_method_list;
 
-# $hs_class->meta->name || ref($hs_class)
-my $as_class = Class::MOP::Class->create_anon_class(
-    superclasses => [ 'ArrayStore', ref($hs_class) ],
-)->new_object();
+my $prev;
+my (%layer_meta, %layer_class);
+for my $layer_pkg (qw( HashStore ArrayStore ArrayCache ParenMW )) {
+    my $layer_meta = Class::MOP::Class->initialize($layer_pkg);
+    my $layer_class = Class::MOP::Class->create_anon_class(
+        superclasses => [ $layer_meta->superclasses, ($prev // ()) ],
+        attributes => [ map { $layer_meta->get_attribute($_) }
+                            $layer_meta->get_attribute_list ],
+        # package not needed
+    )->new_object();
 
-my $ac_class = Class::MOP::Class->create_anon_class(
-    superclasses => [ 'ArrayCache', ref($as_class) ],
-)->new_object();
+    for my $protocol_method (@protocol_methods) {
+        next unless $layer_meta->has_method($protocol_method);
+        my $m = $layer_meta->get_method($protocol_method)->clone(
+                package_name => $layer_meta->name,
+                associated_metaclass => $layer_meta,
+        );
+        # $m->detach_from_class;
+        $layer_meta->add_method( $m->name, $m );
+    }
 
-my $pa_class = Class::MOP::Class->create_anon_class(
-    superclasses => [ 'ParenMW', ref($ac_class) ],
-)->new_object();
+    $layer_meta{$layer_pkg} = $layer_meta;
+    $layer_class{$layer_pkg} = $layer_class;
+    $prev = $layer_meta->name;
+}
 
 # new instance of the anonymous subclass of HashStore
 # (don't provide 'inner' as that is now handled by anon class inheriting)
-my $hs = $hs_class->new();
-my $as = $as_class->new(as_limit => 10); # param no use
-my $ac = $ac_class->new(ac_limit => 20); # param no use
-my $s  = $pa_class->new(as_limit => 10, ac_limit => 20);
+my $hs = $layer_class{HashStore}->new();
+my $as = $layer_class{ArrayStore}->new(as_limit => 10); # param no use
+my $ac = $layer_class{ArrayCache}->new(ac_limit => 20); # param no use
+my $s  = $layer_class{ParenMW}->new(as_limit => 10, ac_limit => 20);
 
 my $hs_pkg = ref $hs;
 my $as_pkg = ref $as;
