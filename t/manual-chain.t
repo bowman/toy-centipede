@@ -26,8 +26,10 @@ my $prev;
 my (%layer_meta, %layer_class);
 for my $layer_pkg (qw( HashStore ArrayStore ArrayCache ParenMW )) {
     my $layer_meta = Class::MOP::Class->initialize($layer_pkg);
+#warn $layer_meta->name, ": $prev, ", $layer_meta->superclasses;
     my $layer_class = Class::MOP::Class->create_anon_class(
-        superclasses => [ $layer_meta->superclasses, ($prev // ()) ],
+        #superclasses => [ $layer_meta->superclasses, ($prev // ()) ],
+        superclasses => [ ($prev // ()), $layer_meta->superclasses ],
         attributes => [ map { $layer_meta->get_attribute($_) }
                             $layer_meta->get_attribute_list ],
         # package not needed
