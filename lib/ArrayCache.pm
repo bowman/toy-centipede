@@ -28,9 +28,9 @@ sub get {
     my ($layer_pkg, $self, $var) = @_;
     # store small int keys in array, fallback to inner
     if ( $var =~ /^\d+$/ && $var <= $self->ac_limit ) {
-        return $self->_ac_get($var) // $self->next::method($var);
+        return $self->_ac_get($var) // $self->${ \($layer_pkg->inner->can('get')) }($var);
     } else {
-        return $self->next::method($var);
+        return $self->${ \($layer_pkg->inner->can('get')) }($var);
     }
 }
 
@@ -39,12 +39,14 @@ sub set {
     # store small int keys in array, fallback to inner
     if ( $var =~ /^\d+$/ && $var <= $self->ac_limit ) {
         $self->_ac_set($var, $val);
-warn "@_";
-        warn $layer_pkg->next::can;
-        warn $self->next::can;
-        $self->next::method($var, $val);
+        #warn "?? ", $layer_pkg->can('set');
+        #warn "++ ", Class::MOP::Class::__ANON__::SERIAL::8->can('set');
+        #warn "++ ", ($layer_pkg->meta->superclasses)[0]->can('set');
+        #warn "++ ", $layer_pkg->inner->can('set');
+        #warn "++ ", $layer_pkg->inner;
+        $self->${ \($layer_pkg->inner->can('set')) }($var, $val);
     } else {
-        $self->next::method($var, $val);
+        $self->${ \($layer_pkg->inner->can('set')) }($var, $val);
     }
 }
 

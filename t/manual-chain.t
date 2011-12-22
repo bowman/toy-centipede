@@ -44,26 +44,24 @@ for my $prelayer_pkg (qw( HashStore ArrayStore ArrayCache ParenMW )) {
         my $new_fq_name = $layer_meta->name . "::" . $orig_meth->name;
         #my $new_body = subname $new_fq_name;
 
-warn "Adding $protocol_method to $new_fq_name ($orig_body)";
-
-# DEAD-END:
-# the goto &$orig_body wrapper trick doesn't fool mro, it's not using caller
-# need subname and therefore clone_sub
-subname($new_fq_name, $orig_body);
-
+my $s;
         $layer_meta->add_method(
             $orig_meth->name => subname($new_fq_name,
-                    sub {
-warn "$prelayer_pkg IN $new_fq_name, with (@_)";
+                    $s=sub {
+#warn "$prelayer_pkg IN $new_fq_name, with (@_)";
                         unshift @_, $layer_pkg; goto &$orig_body }) );
+#warn "Adding $protocol_method ($orig_body => $s) to $new_fq_name";
     }
+
+    my $inner_pkg = $prev;
+    $layer_meta->add_method( inner => sub { $inner_pkg } );
 
     $layer_meta{$prelayer_pkg} = $layer_meta;
     $layer_pkg{$prelayer_pkg} = $layer_pkg;
     $prev = $layer_pkg;
 }
 
-warn join("\n  ",@{ mro::get_linear_isa($layer_pkg{ParenMW}) });
+#warn join("\n  ",@{ mro::get_linear_isa($layer_pkg{ParenMW}) });
 
 # new instance of the anonymous subclass of HashStore
 # (don't provide 'inner' as that is now handled by anon class inheriting)

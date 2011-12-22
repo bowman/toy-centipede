@@ -30,7 +30,7 @@ sub get {
     if ( $var =~ /^\d+$/ && $var <= $self->as_limit ) {
         return $self->_as_get($var);
     } else {
-        return $self->next::method($var);
+        return $self->${ \($layer_pkg->inner->can('get')) }($var);
     }
 }
 
@@ -40,7 +40,7 @@ sub set {
     if ( $var =~ /^\d+$/ && $var <= $self->as_limit ) {
         $self->_as_set($var, $val);
     } else {
-        return $self->next::method($var, $val);
+        return $self->${ \($layer_pkg->inner->can('set')) }($var, $val);
     }
 }
 

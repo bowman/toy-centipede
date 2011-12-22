@@ -8,7 +8,7 @@ use mro 'c3';
 
 sub get {
     my ($layer_pkg, $self, $var) = @_;
-    return "(" . ($self->next::method($var) // 'UNDEF') . ")";
+    return "(" . ($self->${ \($layer_pkg->inner->can('get')) }($var) // 'UNDEF') . ")";
 }
 
 =for delegate reference
