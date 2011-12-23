@@ -31,4 +31,6 @@ my $run_pkgstr = __PACKAGE__ . "::run";
 $a->$run_pkgstr;
 
 $a->${ \(__PACKAGE__ . "::run") };
+
+$a->${ \(__PACKAGE__->can("run")) };
 }
