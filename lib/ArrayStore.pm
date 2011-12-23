@@ -6,6 +6,11 @@ use mro 'c3'; # dfs might actually be better
 
 with 'Protocol';
 
+has inner => (
+    is => 'ro',
+    does => 'Protocol',
+);
+
 has as_store => (
     traits  => ['Array'],
     is      => 'ro',

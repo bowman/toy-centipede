@@ -6,6 +6,11 @@ use mro 'c3';
 
 with 'Protocol';
 
+has inner => (
+    is => 'ro',
+    does => 'Protocol',
+);
+
 has ac_store => (
     traits  => ['Array'],
     is      => 'ro',
