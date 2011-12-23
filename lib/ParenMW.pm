@@ -4,7 +4,7 @@ use namespace::autoclean;
 use Moose;
 use mro 'c3';
 
-with 'Protocol';
+# with 'Protocol';
 
 has inner => (
     is => 'ro',
@@ -16,9 +16,11 @@ sub get {
     return "(" . ($self->next::method($var) // 'UNDEF') . ")";
 }
 
+=pod
 sub set {
     my ($self, $var, $val) = @_;
     return $self->next::method($var, $val);
 }
+=cut
 
 1;
