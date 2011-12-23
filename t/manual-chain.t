@@ -26,7 +26,7 @@ my @protocol_methods = map { $_->name }
 
 my $prev;
 my (%layer_meta, %layer_pkg);
-for my $layer_pkg (qw( HashStore ArrayStore ArrayCache ParenMW )) {
+for my $layer_pkg (qw( HashStore ArrayStore ArrayCache ParenMW ParenMW )) {
     my $prelayer_meta = Class::MOP::Class->initialize($layer_pkg);
     my $layer_class = Class::MOP::Class->create_anon_class(
         #superclasses => [ $prelayer_meta->superclasses, ($prev // ()) ],
@@ -64,6 +64,7 @@ for my $layer_pkg (qw( HashStore ArrayStore ArrayCache ParenMW )) {
 my $hs = $layer_pkg{HashStore}->new();
 my $as = $layer_pkg{ArrayStore}->new(as_limit => 10); # param no use
 my $ac = $layer_pkg{ArrayCache}->new(ac_limit => 20); # param no use
+# second $layer_pkg{ParenMW} used
 my $s  = $layer_pkg{ParenMW}->new(as_limit => 10, ac_limit => 20);
 
 my $hs_pkg = ref $hs;
@@ -77,13 +78,13 @@ $s->set(30=>"thirty");
 $s->set(x=>"ex");
 #warn join ",\n ", @{ mro::get_linear_isa( $s_pkg ) };
 
-is( $s->get(1),     '(one)',    '$s->get(1)' );
-is( $s->get(20),    '(twenty)', '$s->get(20)' );
-is( $s->get("x"),   '(ex)',     '$s->get("x")' );
+is( $s->get(1),     '((one))',    '$s->get(1)' );
+is( $s->get(20),    '((twenty))', '$s->get(20)' );
+is( $s->get("x"),   '((ex))',     '$s->get("x")' );
 
-is( $s->get(2),     '(UNDEF)',   '$s->get(1)' );
-is( $s->get(21),    '(UNDEF)',   '$s->get(20)' );
-is( $s->get("y"),   '(UNDEF)',   '$s->get("x")' );
+is( $s->get(2),     '((UNDEF))',   '$s->get(1)' );
+is( $s->get(21),    '((UNDEF))',   '$s->get(20)' );
+is( $s->get("y"),   '((UNDEF))',   '$s->get("x")' );
 
 # can't look at chain tails because all state is in $s's attributes
 my $ac_get = "$ac_pkg\::get";
