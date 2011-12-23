@@ -67,6 +67,8 @@ sub build {
 
     # each layer must to Protocol, might do other things
     $layer_meta->add_role($_) for $prelayer_meta->calculate_all_roles;
+    $layer_meta->add_role($protocol_meta)
+        if !$prelayer_meta->does_role('Protocol');
 
     # create a new object with params params and delegates
     return $layer_pkg->new(%$params);
