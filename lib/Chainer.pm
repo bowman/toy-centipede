@@ -70,6 +70,8 @@ sub build {
     $layer_meta->add_role($protocol_meta)
         if !$prelayer_meta->does_role('Protocol');
 
+    $layer_meta->make_immutable;
+
     # create a new object with params params and delegates
     return $layer_pkg->new(%$params);
 }
