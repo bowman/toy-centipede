@@ -23,3 +23,32 @@ There are a number of pipeline or plugin modules out there to consider.
 
 Warning: A lot of this was just stumbling around until the code seemed to work.
 Don't think I know what I'm doing.
+
+Where to Start
+--------------
+
+Look in the t/ directory first, ./t/manual-chain.t and ./t/data-chain.t
+then ./lib/Chainer.pm, ./lib/Protocol.pm is just get and set.
+
+$ tree -f
+.
+├── ./README.txt
+├── ./chain.yaml
+├── ./cmds.txt
+├── ./experiments
+│   ├── ./experiments/clone-lex.pl
+│   ├── ./experiments/file-line.pl
+│   ├── ./experiments/methods.pl
+│   ├── ./experiments/two-face.pl
+│   └── ./experiments/two-self.pl
+├── ./lib
+│   ├── ./lib/ArrayCache.pm
+│   ├── ./lib/ArrayStore.pm
+│   ├── ./lib/Chainer.pm
+│   ├── ./lib/HashStore.pm
+│   ├── ./lib/ParenMW.pm
+│   └── ./lib/Protocol.pm
+└── ./t
+    ├── ./t/data-chain.t
+    └── ./t/manual-chain.t
+
